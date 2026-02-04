@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Local Voice Chatbot (Ollama)</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Local Voice Chatbot</h1>
+      <div class="sub">Mic STT → Ollama → TTS (local network)</div>
+    </header>
+
+    <section class="card grid">
+      <div>
+        <h2>Ollama</h2>
+        <div class="row">
+          <button id="btnHealth">Check Connection</button>
+          <div id="healthOut" class="muted"></div>
+        </div>
+        <p class="muted small">
+          Ollama host + model are configured in <code>app.py</code>.
+        </p>
+      </div>
+
+      <div>
+        <h2>TTS</h2>
+        <div class="row">
+          <label for="ttsRate">Speak speed</label>
+          <input id="ttsRate" type="range" min="0.6" max="1.6" step="0.05" value="1.0"/>
+          <span id="ttsRateVal" class="mono">1.00</span>
+        </div>
+
+        <div class="row">
+          <label for="voiceSelect">Voice</label>
+          <select id="voiceSelect"></select>
+        </div>
+
+        <div class="row">
+          <button id="btnStopSpeak" class="danger">Stop Speaking</button>
+          <span id="speakState" class="muted small"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Speech-to-Text</h2>
+
+      <div class="row">
+        <label for="sttMode">Mode</label>
+        <select id="sttMode">
+          <option value="browser">Browser STT (Web Speech API)</option>
+          <option value="server">Server STT (Whisper via /api/stt)</option>
+        </select>
+        <span class="muted small" id="sttNote"></span>
+      </div>
+
+      <div class="row">
+        <label for="micSelect">Microphone</label>
+        <select id="micSelect"></select>
+        <button id="btnRefreshMics">Refresh Mics</button>
+      </div>
+
+      <div class="muted small">
+        <div>• Browser STT uses the browser’s SpeechRecognition and typically <b>cannot</b> select a specific mic (it uses the default input device).</div>
+        <div>• Server STT uses your selected mic via MediaRecorder and sends audio to the Flask server for transcription.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Personality (System Prompt)</h2>
+      <textarea id="systemPrompt" rows="5" placeholder="Define the bot's personality here..."></textarea>
+
+      <div class="row">
+        <input id="personalityName" placeholder="Personality name (e.g., 'Cyber Lab Tutor')" />
+        <button id="btnSavePersonality">Save</button>
+        <button id="btnRefreshPersonalities">Refresh List</button>
+      </div>
+
+      <div class="row">
+        <label for="personalitySelect">Saved</label>
+        <select id="personalitySelect"></select>
+        <button id="btnLoadPersonality">Load</button>
+      </div>
+
+      <div id="personalityMsg" class="muted small"></div>
+    </section>
+
+    <section class="card">
+      <h2>Input</h2>
+
+      <div class="row">
+        <button id="btnMicToggle">Start Mic</button>
+        <label class="checkbox">
+          <input id="alwaysListen" type="checkbox" />
+          Always listen
+        </label>
+        <span id="micState" class="muted small"></span>
+      </div>
+
+      <div class="row">
+        <input id="textInput" placeholder="Type a message..." />
+        <button id="btnSend">Send</button>
+      </div>
+
+      <div class="muted small" id="compatMsg">
+        Speech-to-text requires permission to access the microphone. Chrome/Edge recommended.
+      </div>
+    </section>
+
+    <section class="card chat">
+      <h2>Chat</h2>
+      <div id="chatLog" class="chatlog"></div>
+    </section>
+
+    <footer class="muted small">
+      Runs on port 8000. Open on your LAN IP: <code>http://SERVER_IP:8000</code>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
