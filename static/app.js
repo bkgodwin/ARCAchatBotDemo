@@ -42,7 +42,7 @@ function addBubble(role, text) {
 
   const meta = document.createElement("div");
   meta.className = "bmeta";
-  meta.textContent = role === "user" ? "You" : "Assistant";
+  meta.textContent = role === "user" ? "You" : "EagleAI";
 
   const body = document.createElement("div");
   body.textContent = text;
@@ -52,6 +52,28 @@ function addBubble(role, text) {
 
   chatLog.appendChild(div);
   chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function showTypingIndicator() {
+  const div = document.createElement("div");
+  div.id = "typing-indicator";
+  div.className = "typing-indicator";
+  
+  for (let i = 0; i < 3; i++) {
+    const dot = document.createElement("div");
+    dot.className = "dot";
+    div.appendChild(dot);
+  }
+  
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  const indicator = document.getElementById("typing-indicator");
+  if (indicator) {
+    indicator.remove();
+  }
 }
 
 function setStatus(el, msg) {
@@ -316,6 +338,7 @@ async function startServerListening(keepButtonState = false) {
       }
     } catch (e) {
       // Show one error then stop (prevents spam)
+      hideTypingIndicator();
       addBubble("bot", `STT Error: ${e.message}`);
       stopServerListening(true);
       return;
@@ -425,13 +448,21 @@ async function sendMessage(text) {
   btnSend.disabled = true;
   textInput.value = "";
 
+  // Show typing indicator while waiting for response
+  showTypingIndicator();
+
   try {
     const system_prompt = systemPromptEl.value || "";
     const data = await postJSON("/api/chat", { system_prompt, user_message: msg });
     const assistant = data.assistant || "";
+    
+    // Hide typing indicator before showing response
+    hideTypingIndicator();
+    
     addBubble("bot", assistant);
     await speakText(assistant);
   } catch (e) {
+    hideTypingIndicator();
     addBubble("bot", `Error: ${e.message}`);
     if (alwaysListen.checked && !isSpeaking) startListening(true);
   } finally {
